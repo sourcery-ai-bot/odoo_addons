@@ -761,11 +761,10 @@ class AccountAssetAsset(models.Model):
                 last_line.with_context(
                     force_account_move_amount=force_account_move_amount).\
                     post_depreciation_line(reverse=True)
-            if not self.purchase_move_id:
-                if self._changed_accounts():
-                    origin_vals = asset.asset_history_ids.sorted(
-                        'create_date')[0].read(load='_classic_write')[0]
-                    asset.asset_history_ids.create(origin_vals)
+            if not self.purchase_move_id and self._changed_accounts():
+                origin_vals = asset.asset_history_ids.sorted(
+                    'create_date')[0].read(load='_classic_write')[0]
+                asset.asset_history_ids.create(origin_vals)
         return True
 
     @api.one
@@ -905,11 +904,14 @@ class AccountAssetAsset(models.Model):
         # TODO: manage multi-assets sale
         self._can_confirm_asset_sale()
         assets_to_recompute = self.filtered(
-            lambda asset: not asset.accounting_depreciation_line_ids or
-            max([line.depreciation_date
-                 for line in asset.accounting_depreciation_line_ids]) >
-            asset.sale_date
+            lambda asset: not asset.accounting_depreciation_line_ids
+            or max(
+                line.depreciation_date
+                for line in asset.accounting_depreciation_line_ids
+            )
+            > asset.sale_date
         )
+
         assets_to_recompute.compute_depreciation_board()
         for asset in self:
             asset.write(asset._get_sale_infos())
@@ -957,14 +959,24 @@ class AccountAssetAsset(models.Model):
         self.ensure_one()
         fiscal_book_value = self.purchase_value
         if self.accounting_depreciation_line_ids:
-            fiscal_book_value -= sum([
-                depr.depreciation_value
-                for depr in self.accounting_depreciation_line_ids], 0.0)
+            fiscal_book_value -= sum(
+                (
+                    depr.depreciation_value
+                    for depr in self.accounting_depreciation_line_ids
+                ),
+                0.0,
+            )
+
             if self.benefit_accelerated_depreciation and \
                     self.fiscal_depreciation_line_ids:
-                fiscal_book_value -= sum([
-                    depr.accelerated_value
-                    for depr in self.fiscal_depreciation_line_ids], 0.0)
+                fiscal_book_value -= sum(
+                    (
+                        depr.accelerated_value
+                        for depr in self.fiscal_depreciation_line_ids
+                    ),
+                    0.0,
+                )
+
         return fiscal_book_value
 
     @api.multi

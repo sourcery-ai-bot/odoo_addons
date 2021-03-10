@@ -31,8 +31,10 @@ class UpgradeManager(object):
         self.cr = self.db.cursor()
         self.cr.autocommit(True)
         self.upgrades = self._get_upgrades()
-        self.modules_to_upgrade = list(set(sum(
-            [upgrade.modules_to_upgrade for upgrade in self.upgrades], [])))
+        self.modules_to_upgrade = list(
+            set(sum((upgrade.modules_to_upgrade for upgrade in self.upgrades), []))
+        )
+
         self.modules_to_install_at_creation = self.upgrades and \
             self.upgrades[-1].modules_to_install_at_creation or []
 
@@ -48,9 +50,7 @@ class UpgradeManager(object):
     def db_in_creation(self):
         self.cr.execute("SELECT relname FROM pg_class "
                         "WHERE relname='ir_config_parameter'")
-        if self.cr.rowcount:
-            return False
-        return True
+        return not self.cr.rowcount
 
     @lazy_property
     def code_version(self):
@@ -215,7 +215,6 @@ class Upgrade(object):
         else:
             _logger.error(
                 '%s extension is not supported in upgrade %sing', ext, mode)
-            pass
 
     def load_files(self, cr, mode):
         def format_files_list(f):

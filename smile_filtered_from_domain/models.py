@@ -119,10 +119,7 @@ def filtered_from_domain(self, domain):
                 stack.append(compute(item))
             else:
                 a = stack.pop()
-                if item == '!':
-                    b = self
-                else:
-                    b = stack.pop()
+                b = self if item == '!' else stack.pop()
                 stack.append(SET_OPERATORS[item](b, a))
         return stack.pop()
 

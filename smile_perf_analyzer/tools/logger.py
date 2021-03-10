@@ -152,10 +152,12 @@ class PerfLogger():
         }
         PerfLog = self.env['ir.logging.perf.log']
         updates = [('id', "nextval('%s')" % PerfLog._sequence)]
-        for col in vals:
+        for col, value in vals.items():
             field = PerfLog._fields[col]
-            updates.append((col, field.column_format,
-                            field.convert_to_column(vals[col], PerfLog)))
+            updates.append(
+                (col, field.column_format, field.convert_to_column(value, PerfLog))
+            )
+
         columns = ', '.join('"%s"' % u[0] for u in updates)
         values = ', '.join(u[1] for u in updates)
         query = 'INSERT INTO ir_logging_perf_log (%s) VALUES (%s)' % \

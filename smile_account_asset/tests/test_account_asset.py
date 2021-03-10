@@ -256,9 +256,11 @@ class AccountAssetTest(SingleTransactionCase):
             amount_field = 'depreciation_value'
             if line.depreciation_type == 'fiscal':
                 amount_field = 'accelerated_value'
-            depreciation_value = sum([
+            depreciation_value = sum(
                 nline[amount_field]
-                for nline in line.move_id.asset_depreciation_line_ids])
+                for nline in line.move_id.asset_depreciation_line_ids
+            )
+
             self.assertEquals(round(line.move_id.amount, 2),
                               round(depreciation_value, 2))
 

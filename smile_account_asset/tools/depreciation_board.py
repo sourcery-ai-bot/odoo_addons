@@ -80,9 +80,14 @@ class DepreciationBoard(object):
         fiscalyear_start_date = get_fiscalyear_start_date(
             self.depreciation_start_date, self.fiscalyear_start_day)
         exceptional_value_before_depreciation_start_date = sum(
-            [self.exceptional_values[month]
-             for month in self.exceptional_values
-             if month < fiscalyear_start_date.strftime('%Y-%m')], 0)
+            (
+                self.exceptional_values[month]
+                for month in self.exceptional_values
+                if month < fiscalyear_start_date.strftime('%Y-%m')
+            ),
+            0,
+        )
+
         self.book_value = self.purchase_value - \
             exceptional_value_before_depreciation_start_date
         self.book_value_wo_exceptional = self.purchase_value - \
@@ -101,10 +106,7 @@ class DepreciationBoard(object):
             raise TypeError("method_info must be a dictionnary")
         all_keys = ('base_value', 'use_salvage_value', 'use_manual_rate',
                     'rate_formula', 'prorata', 'need_additional_annuity')
-        missing_keys = []
-        for key in all_keys:
-            if key not in method_info:
-                missing_keys.append(key)
+        missing_keys = [key for key in all_keys if key not in method_info]
         if missing_keys:
             raise KeyError("The following keys are missing in "
                            "method_info dict: %s" % missing_keys)
@@ -343,8 +345,7 @@ class DepreciationBoardLine(object):
         period_start_date = get_period_start_date(
             depreciation_date, board.fiscalyear_start_day,
             board.depreciation_period)
-        if period_start_date < board.depreciation_start_date:
-            period_start_date = board.depreciation_start_date
+        period_start_date = max(period_start_date, board.depreciation_start_date)
         for month in values:
             if period_start_date.strftime('%Y-%m') <= month <= \
                     depreciation_date.strftime('%Y-%m'):
@@ -367,11 +368,15 @@ class DepreciationBoardLine(object):
             return [self]
         period_depreciation_start_date = get_period_start_date(
             self.depreciation_date, board.fiscalyear_start_day, 12)
-        if period_depreciation_start_date < board.depreciation_start_date:
-            period_depreciation_start_date = board.depreciation_start_date
+        period_depreciation_start_date = max(
+            period_depreciation_start_date, board.depreciation_start_date
+        )
+
         period_depreciation_stop_date = self.depreciation_date
-        if board.board_stop_date and board.board_stop_date and \
-                period_depreciation_stop_date > board.board_stop_date:
+        if (
+            board.board_stop_date
+            and period_depreciation_stop_date > board.board_stop_date
+        ):
             period_depreciation_stop_date = get_period_stop_date(
                 board.board_stop_date, board.fiscalyear_start_day,
                 board.depreciation_period)

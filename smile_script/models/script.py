@@ -60,10 +60,7 @@ class SmileScript(models.Model):
     @staticmethod
     def _can_write_after_validation(vals):
         keys = vals and vals.keys() or []
-        for field in keys:
-            if field not in ['name']:
-                return False
-        return True
+        return all(field in ['name'] for field in keys)
 
     @api.multi
     def write(self, vals):

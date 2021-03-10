@@ -53,8 +53,7 @@ class IrProperty(models.Model):
         domain = super(IrProperty, self)._get_domain(prop_name, model)
         if self._context.get('force_company_ids'):
             for cond in domain:
-                if isinstance(cond, (list, tuple)):
-                    if cond[0] == 'company_id':
-                        ids = self._context.get('force_company_ids')
-                        cond = (cond[0], cond[1], ids + [False])
+                if isinstance(cond, (list, tuple)) and cond[0] == 'company_id':
+                    ids = self._context.get('force_company_ids')
+                    cond = (cond[0], cond[1], ids + [False])
         return domain

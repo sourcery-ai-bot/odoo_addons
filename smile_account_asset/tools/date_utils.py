@@ -42,7 +42,7 @@ def get_period_start_date(date, fiscalyear_start_day, depreciation_period):
     date = get_date(date)
     period_start_dates = get_period_start_dates(
         date, fiscalyear_start_day, depreciation_period)
-    return max([p for p in period_start_dates if p <= date])
+    return max(p for p in period_start_dates if p <= date)
 
 
 def get_period_stop_date(date, fiscalyear_start_day, depreciation_period):

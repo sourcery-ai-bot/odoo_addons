@@ -40,10 +40,12 @@ def state_cleaner(model):
                 if cr.rowcount:
                     impex_infos = Model.search_read(
                         [('state', '=', 'running')], ['pid'], order='id')
-                    impex_ids = []
-                    for impex in impex_infos:
-                        if not psutil.pid_exists(impex['pid']):
-                            impex_ids.append(impex['id'])
+                    impex_ids = [
+                        impex['id']
+                        for impex in impex_infos
+                        if not psutil.pid_exists(impex['pid'])
+                    ]
+
                     if impex_ids:
                         Model.browse(impex_ids).write({'state': 'killed'})
             return res

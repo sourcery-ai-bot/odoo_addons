@@ -96,10 +96,10 @@ class ResPartner(models.Model):
             for partner in self:
                 partners_by_type.setdefault(partner.partner_type_id, self.browse())
                 partners_by_type[partner.partner_type_id] |= partner
-        for partner_type in partners_by_type:
+        for partner_type, value in partners_by_type.items():
             if list(vals.keys()) != ['is_company']:  # To avoid infinite loop
                 vals.update(self._get_inherit_values(partner_type, not_null=True))
-            super(ResPartner, partners_by_type[partner_type]).write(vals)
+            super(ResPartner, value).write(vals)
         self._update_children(vals)
         return True
 

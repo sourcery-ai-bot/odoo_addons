@@ -95,10 +95,7 @@ class AuditRule(models.Model):
     def _register_hook(self, ids=None):
         self = self.sudo()
         updated = False
-        if ids:
-            rules = self.browse(ids)
-        else:
-            rules = self.search([])
+        rules = self.browse(ids) if ids else self.search([])
         for rule in rules:
             if rule.model_id.model not in self.env.registry.models or \
                     not rule.active:

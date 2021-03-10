@@ -51,30 +51,31 @@ class Checklist(models.Model):
     @api.model
     @tools.ormcache()
     def _get_checklist_by_model(self):
-        res = {}
-        for checklist in self.with_context(active_test=True).sudo().search([]):
-            res[checklist.model] = checklist.id
-        return res
+        return {
+            checklist.model: checklist.id
+            for checklist in self.with_context(active_test=True).sudo().search([])
+        }
 
     @api.one
     def _compute_progress_rates(self, records=None):
-        if not self._context.get('do_not_compute_progress_rates'):
-            if not records:
-                records = self.env[self.model].sudo(). \
-                    with_context(active_test=False).search([])
-            for record in records.with_context(active_test=True):
-                vals = self._get_record_vals(record)
-                if vals:
-                    old_progress_rate = record.x_checklist_progress_rate
-                    record.write(vals)
-                    if self.action_id and old_progress_rate != \
-                            record.x_checklist_progress_rate == 100.0:
-                        ctx = {
-                            'active_id': record.id,
-                            'active_ids': [record.id],
-                            'active_model': self.model_id.model,
-                        }
-                        self.action_id.with_context(**ctx).run()
+        if self._context.get('do_not_compute_progress_rates'):
+            return
+        if not records:
+            records = self.env[self.model].sudo(). \
+                with_context(active_test=False).search([])
+        for record in records.with_context(active_test=True):
+            vals = self._get_record_vals(record)
+            if vals:
+                old_progress_rate = record.x_checklist_progress_rate
+                record.write(vals)
+                if self.action_id and old_progress_rate != \
+                        record.x_checklist_progress_rate == 100.0:
+                    ctx = {
+                        'active_id': record.id,
+                        'active_ids': [record.id],
+                        'active_model': self.model_id.model,
+                    }
+                    self.action_id.with_context(**ctx).run()
 
     @api.multi
     def _get_record_vals(self, record):

@@ -68,8 +68,7 @@ class AccountInvoiceLine(models.Model):
         for line in self:
             if line.asset_category_id and \
                     line.invoice_id.journal_id.type == 'purchase':
-                asset_key = tuple([line[field]
-                                   for field in self._asset_key_fields])
+                asset_key = tuple(line[field] for field in self._asset_key_fields)
                 res.setdefault(asset_key, self.browse())
                 res[asset_key] |= line
         return res.values()

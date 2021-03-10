@@ -83,10 +83,10 @@ class TestGroups(TransactionCase):
         self.group_completion.button_complete_access_controls()
         for i in self.group_completion.model_access:
             list_after_completion.append(i.model_id.name)
-            if i.model_id.name != "Models":
-                if not i.perm_read or i.perm_write or \
-                        i.perm_create or i.perm_unlink:
-                    check_right = False
+            if i.model_id.name != "Models" and (
+                not i.perm_read or i.perm_write or i.perm_create or i.perm_unlink
+            ):
+                check_right = False
         for model in expected_list_after_completion:
             self.assertIn(
                 model, list_after_completion,

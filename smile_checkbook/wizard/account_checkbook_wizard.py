@@ -39,7 +39,7 @@ class AccountCheckbookWizard(models.TransientModel):
             raise UserError(
                 _("Minimal number is greather than maximum number. "
                     "Please check range of numbers."))
-        if not self.from_number + self.quantity - 1 == self.to_number:
+        if self.from_number + self.quantity - 1 != self.to_number:
             raise UserError(
                 _("Quantity seems inconsistent with range of numbers"))
         common_vals = {

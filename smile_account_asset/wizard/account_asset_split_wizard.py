@@ -63,9 +63,7 @@ class AccountAssetSplitWizard(models.TransientModel):
             'new_value': self[field],
             'operator': operator,
         }
-        if safe_eval(expr % context):
-            return False
-        return True
+        return not safe_eval(expr % context)
 
     @api.onchange('asset_id')
     def onchange_asset_id(self):

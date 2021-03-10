@@ -26,9 +26,11 @@ class AccountInvoiceTax(models.Model):
 
     @api.depends('invoice_id.invoice_line_ids')
     def _compute_base_amount(self):
-        tax_grouped = {}
-        for invoice in self.mapped('invoice_id'):
-            tax_grouped[invoice.id] = invoice.get_taxes_values()
+        tax_grouped = {
+            invoice.id: invoice.get_taxes_values()
+            for invoice in self.mapped('invoice_id')
+        }
+
         for tax in self:
             tax.base = 0.0
             if tax.tax_id:

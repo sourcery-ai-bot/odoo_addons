@@ -30,14 +30,10 @@ def eval_request_params(kwargs):
 
 def decode_bytes(result):
     if isinstance(result, (list, tuple)):
-        decoded_result = []
-        for item in result:
-            decoded_result.append(decode_bytes(item))
+        decoded_result = [decode_bytes(item) for item in result]
         return decoded_result
     if isinstance(result, dict):
-        decoded_result = {}
-        for k, v in result.items():
-            decoded_result[decode_bytes(k)] = decode_bytes(v)
+        decoded_result = {decode_bytes(k): decode_bytes(v) for k, v in result.items()}
         return decoded_result
     if isinstance(result, bytes):
         return result.decode('utf-8')

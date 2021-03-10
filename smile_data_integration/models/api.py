@@ -26,10 +26,10 @@ def _convert_domain(self, domain):
                  (isinstance(condition[2], list) and
                   isinstance(condition[2][0], string_types))):
             model = self
+            relational_types = (fields.Many2one,
+                                fields.One2many, fields.Many2many)
             for field_name in condition[0].split('.'):
                 field = model._fields.get(field_name)
-                relational_types = (fields.Many2one,
-                                    fields.One2many, fields.Many2many)
                 if isinstance(field, relational_types):
                     model = self.env[field.comodel_name]
                 elif field_name != 'id':
@@ -40,10 +40,8 @@ def _convert_domain(self, domain):
                     condition[2] = IrModelData.xmlid_to_res_id(
                         condition[2], raise_if_not_found=True)
                 else:
-                    ids = []
-                    for xmlid in condition[2]:
-                        ids.append(IrModelData.xmlid_to_res_id(
-                            xmlid, raise_if_not_found=True))
+                    ids = [IrModelData.xmlid_to_res_id(
+                            xmlid, raise_if_not_found=True) for xmlid in condition[2]]
                     condition[2] = ids
 
 

@@ -73,7 +73,7 @@ class BudgetLine(models.Model):
                     line_infos = self.search_read(group['__domain'],
                                                   fields_to_compute)
                     for field in fields_to_compute:
-                        group[field] = sum([l[field] for l in line_infos])
+                        group[field] = sum(l[field] for l in line_infos)
         return res
 
     @api.multi

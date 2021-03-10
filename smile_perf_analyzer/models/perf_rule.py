@@ -69,14 +69,15 @@ class IrLoggingPerfRule(models.Model):
     def check(self, path, model, method, log_python=False, log_sql=False):
         if model != self._name:
             for rule in self._get_logging_rules():
-                if rule['path'].match(path):
-                    if not rule['user_ids'] or self._uid in rule['user_ids']:
-                        if not rule['models'] or model in rule['models']:
-                            if not rule['methods'] or \
-                                    method in rule['methods']:
-                                if (not log_python or rule['log_python']) and \
-                                        (not log_sql or rule['log_sql']):
-                                    return True
+                if (
+                    rule['path'].match(path)
+                    and (not rule['user_ids'] or self._uid in rule['user_ids'])
+                    and (not rule['models'] or model in rule['models'])
+                    and (not rule['methods'] or method in rule['methods'])
+                    and (not log_python or rule['log_python'])
+                    and (not log_sql or rule['log_sql'])
+                ):
+                    return True
         return False
 
     @api.model
@@ -84,19 +85,20 @@ class IrLoggingPerfRule(models.Model):
         min_duration = 0.0
         if model != self._name:
             for rule in self._get_logging_rules():
-                if rule['path'].match(path):
-                    if not rule['user_ids'] or self._uid in rule['user_ids']:
-                        if not rule['models'] or model in rule['models']:
-                            if not rule['methods'] or \
-                                    method in rule['methods']:
-                                min_duration_field = '%s_min_duration' % type
-                                if rule[min_duration_field]:
-                                    if min_duration:
-                                        min_duration = min(
-                                            min_duration,
-                                            rule[min_duration_field])
-                                    else:
-                                        min_duration = rule[min_duration_field]
+                if (
+                    rule['path'].match(path)
+                    and (not rule['user_ids'] or self._uid in rule['user_ids'])
+                    and (not rule['models'] or model in rule['models'])
+                    and (not rule['methods'] or method in rule['methods'])
+                ):
+                    min_duration_field = '%s_min_duration' % type
+                    if rule[min_duration_field]:
+                        if min_duration:
+                            min_duration = min(
+                                min_duration,
+                                rule[min_duration_field])
+                        else:
+                            min_duration = rule[min_duration_field]
         return min_duration
 
     def clear_cache(self):

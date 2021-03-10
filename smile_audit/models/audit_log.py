@@ -64,9 +64,8 @@ class AuditLog(models.Model):
             return self.env[res_model].browse(int(res_id)).exists(). \
                 display_name or value
         if field.type in ('one2many', 'many2many') and value:
-            return ', '.join([self.env[field.comodel_name].browse(rec_id).
-                              exists().display_name or str(rec_id)
-                              for rec_id in value])
+            return ', '.join(self.env[field.comodel_name].browse(rec_id).
+                              exists().display_name or str(rec_id) for rec_id in value)
         if field.type == 'binary' and value:
             return '&lt;binary data&gt;'
         if field.type == 'datetime':
@@ -98,15 +97,15 @@ class AuditLog(models.Model):
 
     @api.one
     def _render_html(self):
-        thead = ''
-        for head in (_('Field'), _('Old value'), _('New value')):
-            thead += '<th>%s</th>' % head
+        thead = ''.join(
+            '<th>%s</th>' % head
+            for head in (_('Field'), _('Old value'), _('New value'))
+        )
+
         thead = '<thead><tr>%s</tr></thead>' % thead
         tbody = ''
         for line in self._get_content():
-            row = ''
-            for item in line:
-                row += '<td>%s</td>' % item
+            row = ''.join('<td>%s</td>' % item for item in line)
             tbody += '<tr>%s</tr>' % row
         tbody = '<tbody>%s</tbody>' % tbody
         self.data_html = '<table class="o_list_view table table-condensed ' \

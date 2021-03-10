@@ -150,14 +150,14 @@ class Base(models.AbstractModel):
         """
         self.ensure_one()
         other.ensure_one()
-        diff = {}
         comparison_fields = self._get_comparison_fields()
         current_infos = self.read(comparison_fields)[0]
         other_infos = other.read(comparison_fields)[0]
-        for field in comparison_fields:
-            if current_infos[field] != other_infos[field]:
-                diff[field] = (other_infos[field], current_infos[field])
-        return diff
+        return {
+            field: (other_infos[field], current_infos[field])
+            for field in comparison_fields
+            if current_infos[field] != other_infos[field]
+        }
 
     @api.multi
     def _get_comparison_logs(self, other):
@@ -277,10 +277,7 @@ class Base(models.AbstractModel):
                     stack.append(compute(item))
                 else:
                     a = stack.pop()
-                    if item == '!':
-                        b = self
-                    else:
-                        b = stack.pop()
+                    b = self if item == '!' else stack.pop()
                     stack.append(SET_OPERATORS[item](b, a))
             return stack.pop()
 
@@ -312,7 +309,7 @@ class Base(models.AbstractModel):
             query = "CREATE UNIQUE INDEX %(index_name)s " \
                     "ON %(table)s (%(column)s)"
             query += " WHERE %s" % (where_clause or "%(column)s IS NOT NULL")
-            query = query % locals()
+            query %= locals()
             self._cr.execute(query)
 
     @api.model

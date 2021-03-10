@@ -17,5 +17,5 @@ def create_unique_index(cr, table, column, where_clause=None):
         _logger.debug('Creating unique index %s' % index_name)
         query = "CREATE UNIQUE INDEX %(index_name)s ON %(table)s (%(column)s)"
         query += " WHERE %s" % (where_clause or "%(column)s IS NOT NULL")
-        query = query % locals()
+        query %= locals()
         cr.execute(query)

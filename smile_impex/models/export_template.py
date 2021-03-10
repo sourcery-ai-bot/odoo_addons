@@ -101,8 +101,13 @@ class IrModelExportTemplate(models.Model):
         if 'active_ids' in self._context:
             res_ids &= set(self._context['active_ids'])
         if self.unique:
-            res_ids -= set(sum([safe_eval(export.record_ids)
-                                for export in self.export_ids], []))
+            res_ids -= set(
+                sum(
+                    (safe_eval(export.record_ids) for export in self.export_ids),
+                    [],
+                )
+            )
+
         return list(res_ids)
 
     def _get_res_ids_offset(self, *args):

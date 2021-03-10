@@ -64,8 +64,7 @@ class BaseModuleExport(models.TransientModel):
         if not properties:
             return []
         fields_to_export = property_obj.get_fields_to_export()
-        rows = [fields_to_export]
-        rows.extend(properties.export_data(fields_to_export)['datas'])
+        rows = [fields_to_export, *properties.export_data(fields_to_export)['datas']]
         return [('ir.property', rows)]
 
     def _export_ir_model_data(self, models, res_ids_by_model, noupdate):
@@ -99,8 +98,7 @@ class BaseModuleExport(models.TransientModel):
             if 'parent_left' in res_obj._fields:
                 recs = recs.sorted(key=lambda rec: rec.parent_left)
             res_ids_by_model[model] = recs.ids
-            rows = [fields_to_export]
-            rows.extend(recs.export_data(fields_to_export)['datas'])
+            rows = [fields_to_export, *recs.export_data(fields_to_export)['datas']]
             datas[index] = (model, rows)
         datas.extend(self._export_ir_properties(models, res_ids_by_model))
         datas = self._export_ir_model_data(models, res_ids_by_model, False) + datas

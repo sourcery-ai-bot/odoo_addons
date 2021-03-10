@@ -85,10 +85,12 @@ class BaseAutomation(models.Model):
             if method_name in existing_method_names or '__' in method_name:
                 continue
             method = getattr(Model, method_name)
-            if getattr(method, '_api', False):
-                if method._api not in ('v8', 'multi', 'one') and \
-                        '_id' not in method._api:
-                    continue
+            if (
+                getattr(method, '_api', False)
+                and method._api not in ('v8', 'multi', 'one')
+                and '_id' not in method._api
+            ):
+                continue
             method_args = inspect.getargspec(method)[0]
             if not hasattr(method, '_api') and 'ids' not in method_args and \
                     'id' not in method_args:
@@ -167,9 +169,9 @@ class BaseAutomation(models.Model):
                 # Update execution counters
                 if self.max_executions:
                     self._update_execution_counter(records)
-                if records:
-                    logger.time_info('[%s] Successful action: %s - '
-                                     'Records: %s%s' % tuple(params))
+            if records:
+                logger.time_info('[%s] Successful action: %s - '
+                                 'Records: %s%s' % tuple(params))
             return True
         except Exception as e:
             logger.error('[%s] Action failed: %s - '

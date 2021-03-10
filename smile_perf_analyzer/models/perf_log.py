@@ -64,15 +64,11 @@ class IrLoggingPerfLog(models.Model):
     def _format_in_html(data, header):
         if not data:
             return ''
-        thead = ''
-        for head in header:
-            thead += '<th>%s</th>' % head
+        thead = ''.join('<th>%s</th>' % head for head in header)
         thead = '<thead><tr>%s</tr></thead>' % thead
         tbody = ''
         for line in data:
-            row = ''
-            for item in line:
-                row += '<td>%s</td>' % item
+            row = ''.join('<td>%s</td>' % item for item in line)
             tbody += '<tr>%s</tr>' % row
         tbody = '<tbody>%s</tbody>' % tbody
         return '<table class="o_list_view table table-condensed ' \
